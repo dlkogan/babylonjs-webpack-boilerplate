@@ -1,7 +1,6 @@
 import * as BABYLON from 'babylonjs';
 import 'babylonjs-loaders';
 import * as GUI from 'babylonjs-gui';
-import oimo from 'oimo'
 
 export default class Game {
   constructor( canvasId ){
@@ -16,7 +15,7 @@ export default class Game {
     // Create a basic BJS Scene object.
     this.scene = new BABYLON.Scene(this.engine);
     //physics
-    this.scene.enablePhysics(new BABYLON.Vector3(0,-9.81, 0), new BABYLON.OimoJSPlugin())
+    this.scene.enablePhysics(new BABYLON.Vector3(0,-9.81, 0), new BABYLON.CannonJSPlugin())
     // Create a FreeCamera, and set its position to (x:0, y:5, z:-10).
     this.camera = new BABYLON.FollowCamera('followCam', new BABYLON.Vector3(0, 5,-10), this.scene);
     //camera distance from target
@@ -34,7 +33,7 @@ export default class Game {
     cubeMat.diffuseColor = new BABYLON.Color3(1,0,0)
     cubePlayer.material = cubeMat;
     cubePlayer.position.y = 1;
-
+    let cubeImposter = cubePlayer.physicsImpostor = new BABYLON.PhysicsImpostor(cubePlayer, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 1, restitution: 0, nativeOptions:{move: true} }, this.scene);
     //Parent Camera to cubePlayer
     this.camera.lockedTarget = cubePlayer;
 
@@ -53,16 +52,15 @@ export default class Game {
     let newTree = BABYLON.MeshBuilder.CreateBox('newTree', {height:4, width:1, depth:1}, this.scene)
     newTree.position.y = 2;
     newTree.position.z = 4;
-    //Collisions
-    let cubeImposter = cubePlayer.physicsImpostor = new BABYLON.PhysicsImpostor(cubePlayer, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 1, restitution: 0, nativeOptions:{move: true} }, this.scene);
-
     let treeImposter = newTree.physicsImpostor = new BABYLON.PhysicsImpostor(newTree, BABYLON.PhysicsImpostor.BoxImpostor, {mass:0, restitution: 0})
+    //Collisions
+
+
+
 
     let groundImposter = ground.physicsImposter = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, {mass: 0, restitution: 0}, this.scene);
 
-    cubeImposter.registerOnPhysicsCollide(treeImposter, function(main, collided) {
-      main.object.material.diffuseColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
-  });
+
 
 
       //For Testing UI, Create a UI Elem
@@ -82,9 +80,24 @@ export default class Game {
     // button1.onPointerUpObservable.add(function() {
     //     alert("you did it!");
     // });
-    // pressSpaceUI.addControl(button1);
+    pressSpaceUI.addControl(button1);
+
+    //Player isTouching Function
 
     //Extremely Basic Keyboard Controller
+    cubeImposter.registerOnPhysicsCollide(treeImposter, function(main, collided) {
+      button1.isVisible = true;
+      setTimeout((() => button1.isVisible = false), 1000)
+
+  });
+
+  //eventListener for Keyboard Press. NOTE, this will make tree Interaction/CandyHappen
+  window.addEventListener("keydown", function(evt) {
+    // Press space key to fire
+    if (evt.keyCode === 32) {
+      console.log('hi!')
+    }
+  });
     this.scene.onKeyboardObservable.add((kbInfo) => {
       switch(kbInfo.type) {
         case BABYLON.KeyboardEventTypes.KEYDOWN:
@@ -101,13 +114,11 @@ export default class Game {
             case 'ArrowUp':
               // cubePlayer.position.z += .05
               cubePlayer.translate(BABYLON.Axis.Z, .05, BABYLON.Space.LOCAL);
+              //cubeImposter.applyImpulse(new BABYLON.Vector3(0,0,10))
               break
             case 'ArrowDown':
               cubePlayer.translate(BABYLON.Axis.Z, -.05, BABYLON.Space.LOCAL);
               break
-            default:
-              console.log(kbInfo.event.key)
-
           }
         break
       }
