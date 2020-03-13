@@ -69,24 +69,20 @@ export default class Game {
         case BABYLON.KeyboardEventTypes.KEYDOWN:
           switch(kbInfo.event.key) {
             case 'ArrowRight':
-              cubePlayer.position.x += .05
+              //this.camera.rotationOffset += 1
+              cubePlayer.addRotation(0,0.01,0)
+              //console.log(cubePlayer)
               break
             case 'ArrowLeft':
-              cubePlayer.position.x -= .05
+              //this.camera.rotationOffset -= 1
+              cubePlayer.addRotation(0,-.01,0)
               break
             case 'ArrowUp':
-              cubePlayer.position.z += .05
+              // cubePlayer.position.z += .05
+              cubePlayer.translate(BABYLON.Axis.Z, .05, BABYLON.Space.LOCAL);
               break
             case 'ArrowDown':
-              cubePlayer.position.z -= .05
-              break
-            case 'z':
-            case 'Z':
-              this.camera.rotationOffset += 1
-              break
-            case 'x':
-            case 'X':
-              this.camera.rotationOffset -= 1
+              cubePlayer.translate(BABYLON.Axis.Z, -.05, BABYLON.Space.LOCAL);
               break
             default:
               console.log(kbInfo.event.key)
