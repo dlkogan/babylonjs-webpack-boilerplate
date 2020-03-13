@@ -55,7 +55,7 @@ export default class Game {
     button1.height = 0.4;
     button1.color = "black";
     button1.fontSize = 200;
-    button1.isVisible = true;
+    button1.isVisible = false;
     button1.background = "white";
 
     // button1.onPointerUpObservable.add(function() {
