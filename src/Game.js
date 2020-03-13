@@ -1,6 +1,7 @@
 import * as BABYLON from 'babylonjs';
 import 'babylonjs-loaders';
 import * as GUI from 'babylonjs-gui';
+import oimo from 'oimo'
 
 export default class Game {
   constructor( canvasId ){
@@ -14,6 +15,8 @@ export default class Game {
   createScene() {
     // Create a basic BJS Scene object.
     this.scene = new BABYLON.Scene(this.engine);
+    //physics
+    this.scene.enablePhysics(new BABYLON.Vector3(0,-9.81, 0), new BABYLON.OimoJSPlugin())
     // Create a FreeCamera, and set its position to (x:0, y:5, z:-10).
     this.camera = new BABYLON.FollowCamera('followCam', new BABYLON.Vector3(0, 5,-10), this.scene);
     //camera distance from target
@@ -25,8 +28,11 @@ export default class Game {
     // Create a basic light, aiming 0,1,0 - meaning, to the sky.
     this.light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(0,1,0), this.scene);
     // Create a built-in "sphere" shape; with 16 segments and diameter of 2.
-    let cubePlayer = BABYLON.MeshBuilder.CreateBox('box',{height: 1, width: 1, depth:1}, this.scene);
+    let cubePlayer = BABYLON.MeshBuilder.CreateBox('cubePlayer',{height: 1, width: 1, depth:1}, this.scene);
     // Move the sphere upward 1/2 of its height.
+    let cubeMat = new BABYLON.StandardMaterial('cubePlayer', this.scene)
+    cubeMat.diffuseColor = new BABYLON.Color3(1,0,0)
+    cubePlayer.material = cubeMat;
     cubePlayer.position.y = 1;
 
     //Parent Camera to cubePlayer
@@ -43,8 +49,23 @@ export default class Game {
     ground.material = groundMat;
 
     //Code to generate Randomly Placed Trees
+    //Just a test Tree
+    let newTree = BABYLON.MeshBuilder.CreateBox('newTree', {height:4, width:1, depth:1}, this.scene)
+    newTree.position.y = 2;
+    newTree.position.z = 4;
+    //Collisions
+    let cubeImposter = cubePlayer.physicsImpostor = new BABYLON.PhysicsImpostor(cubePlayer, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 1, restitution: 0, nativeOptions:{move: true} }, this.scene);
 
-    //For Testing UI, Create a UI Elem
+    let treeImposter = newTree.physicsImpostor = new BABYLON.PhysicsImpostor(newTree, BABYLON.PhysicsImpostor.BoxImpostor, {mass:0, restitution: 0})
+
+    let groundImposter = ground.physicsImposter = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, {mass: 0, restitution: 0}, this.scene);
+
+    cubeImposter.registerOnPhysicsCollide(treeImposter, function(main, collided) {
+      main.object.material.diffuseColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
+  });
+
+
+      //For Testing UI, Create a UI Elem
     let spaceBarPlane = BABYLON.MeshBuilder.CreatePlane('spaceBarPlane', {width:2, height:1}, this.scene)
     spaceBarPlane.parent = cubePlayer;
     spaceBarPlane.position.y = 1.5;
@@ -61,7 +82,7 @@ export default class Game {
     // button1.onPointerUpObservable.add(function() {
     //     alert("you did it!");
     // });
-    pressSpaceUI.addControl(button1);
+    // pressSpaceUI.addControl(button1);
 
     //Extremely Basic Keyboard Controller
     this.scene.onKeyboardObservable.add((kbInfo) => {
