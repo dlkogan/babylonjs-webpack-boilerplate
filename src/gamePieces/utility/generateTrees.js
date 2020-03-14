@@ -4,22 +4,48 @@
 
 class Tree {
   constructor() {
-    this.xCoor = 0;
-    this.yCoor = 0;
+    this.value = BABYLON.MeshBuilder.CreateBox('newTree', {height:4, width:1, depth:1}, this.scene)
     this.hasCandy = false;
   }
-  hasCandy() {
+  grantCandy() {
     this.hasCandy = true
+  }
+  spawnCandy() {
+    if (this.hasCandy) {
+      let newCandy = BABYLON.MeshBuilder.CreateSphere('newCandy', 4, this.scene)
+      newCandy.position.y = 4;
+      //FOR POSITION, MAKE SURE IT'S BEING PLACE RELATIVE TO TREE'S GLOBAL SCALE
+      newCandy.position.z = this.value.position.z;
+      newCandy.position.x = this.value.position.x + 2;
+      newCandy.physicsImpostor = new BABYLON.PhysicsImpostor(newCandy, BABYLON.PhysicsImpostor.SphereImpostor, {mass:5, restitution: 0})
+      this.hasCandy = false;
+    }
+
   }
 }
 
 //1/3 of Trees in a given game should contain candy
 
 //Cache created trees so they cannot be placed within 3 X OR 3 Z of each other of each others
+//Don't worry about this right now
 
-const treeGenerator = (numbTrees) => {
-  const maxTreesWithCandy = Math.floor(numbTrees/3)
-  let treeGraph = {}
+export const treeGenerator = (numbTrees) => {
+  let treesWithCandy = Math.floor(numbTrees/3);
+  let treeArray = []
+  for (let i = 0; i < numbTrees; i++) {
+    let xCoor = Math.floor(Math.random() * 60 -30)
+    let zCoor = Math.floor(Math.random() * 60 -30)
+    let newTree = new Tree()
+    newTree.value.position.y = 2;
+    newTree.value.position.z = zCoor;
+    newTree.value.position.x = xCoor;
+    let treeImposter = newTree.value.physicsImpostor = new BABYLON.PhysicsImpostor(newTree.value, BABYLON.PhysicsImpostor.BoxImpostor, {mass:0, restitution: 0})
+    if(treesWithCandy > 0) newTree.grantCandy()
+    treesWithCandy--
+    treeArray.push({['tree']: newTree, ['treeImposter']:treeImposter})
+  }
+  return treeArray;
+
 }
 
 

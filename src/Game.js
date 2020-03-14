@@ -1,6 +1,9 @@
 import * as BABYLON from 'babylonjs';
 import 'babylonjs-loaders';
 import * as GUI from 'babylonjs-gui';
+import {treeGenerator} from '../src/gamePieces/utility/generateTrees'
+import {Player} from '../src/gamePieces/Mesh/player'
+import { Sphere } from 'cannon';
 
 export default class Game {
   constructor( canvasId ){
@@ -26,20 +29,17 @@ export default class Game {
     this.camera.attachControl(this.canvas, true)
     // Create a basic light, aiming 0,1,0 - meaning, to the sky.
     this.light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(0,1,0), this.scene);
-    // Create a built-in "sphere" shape; with 16 segments and diameter of 2.
-    let cubePlayer = BABYLON.MeshBuilder.CreateBox('cubePlayer',{height: 1, width: 1, depth:1}, this.scene);
-    // Move the sphere upward 1/2 of its height.
-    let cubeMat = new BABYLON.StandardMaterial('cubePlayer', this.scene)
-    cubeMat.diffuseColor = new BABYLON.Color3(1,0,0)
-    cubePlayer.material = cubeMat;
-    cubePlayer.position.y = 1;
-    let cubeImposter = cubePlayer.physicsImpostor = new BABYLON.PhysicsImpostor(cubePlayer, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 1, restitution: 0, nativeOptions:{move: true} }, this.scene);
-    //Parent Camera to cubePlayer
+
+
+    //DEFINE THE PLAYER AND ITS IMPOSTER
+    let player = new Player(this.scene);
+    let cubePlayer = player.self;
+    let cubeImposter = player.createImposter(this.scene)
     this.camera.lockedTarget = cubePlayer;
 
     // Create a built-in "ground" shape.
     let ground = BABYLON.MeshBuilder.CreateGround('ground',
-                                {width: 20, height: 20, subdivisions: 2}, this.scene);
+                                {width: 60, height: 60, subdivisions: 2}, this.scene);
     //Create material for Ground
     let groundMat = new BABYLON.StandardMaterial('groundMat', this.scene)
     //Set the Diffuse Color of the Ground
@@ -48,13 +48,6 @@ export default class Game {
     ground.material = groundMat;
 
     //Code to generate Randomly Placed Trees
-    //Just a test Tree
-    let newTree = BABYLON.MeshBuilder.CreateBox('newTree', {height:4, width:1, depth:1}, this.scene)
-    newTree.position.y = 2;
-    newTree.position.z = 4;
-    let treeImposter = newTree.physicsImpostor = new BABYLON.PhysicsImpostor(newTree, BABYLON.PhysicsImpostor.BoxImpostor, {mass:0, restitution: 0})
-    //Collisions
-
 
 
 
@@ -82,47 +75,85 @@ export default class Game {
     // });
     pressSpaceUI.addControl(button1);
 
-    //Player isTouching Function
+    //PLAYER ACTIONS
 
-    //Extremely Basic Keyboard Controller
-    cubeImposter.registerOnPhysicsCollide(treeImposter, function(main, collided) {
-      button1.isVisible = true;
-      setTimeout((() => button1.isVisible = false), 1000)
+    let playerActions = cubePlayer.actionManager = new BABYLON.ActionManager(this.scene)
+    this.scene.actionManager = new BABYLON.ActionManager(this.scene)
 
-  });
+    let up = this.scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
+        {trigger: BABYLON.ActionManager.OnKeyDownTrigger, parameter: 38},
+        function () { cubePlayer.translate(BABYLON.Axis.Z, .1, BABYLON.Space.LOCAL); }
+    ));
+    let down = this.scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
+      {trigger: BABYLON.ActionManager.OnKeyDownTrigger, parameter: 40},
+      function () { cubePlayer.translate(BABYLON.Axis.Z, -.1, BABYLON.Space.LOCAL); }
+    ));
+    let right = this.scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
+      {trigger: BABYLON.ActionManager.OnKeyDownTrigger, parameter: 39},
+      function () { cubePlayer.addRotation(0,0.01,0); }
+    ));
+    let left = this.scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
+      {trigger: BABYLON.ActionManager.OnKeyDownTrigger, parameter: 37},
+      function () { cubePlayer.addRotation(0,-0.01,0); }
+    ));
+
+
+    let treeArr = treeGenerator(30)
+    //FOR EACH TREE IMPOSTER...Create a collision Event :)
+    treeArr.forEach(tree => {
+      cubeImposter.registerOnPhysicsCollide(tree.treeImposter, function(main, collided) {
+        button1.isVisible = true;
+        tree['tree'].spawnCandy()
+    });
+    })
+
+
+    // cubeImposter.registerOnPhysicsCollide(sphere, function(main, collided) {
+    //   collided.dispose()
+    // });
+
+
+
+
+
+    //Extremely Basic Keyboard Controller THIS IS FIRST AND NOW CULLED VER OF KEYBOARD
 
   //eventListener for Keyboard Press. NOTE, this will make tree Interaction/CandyHappen
-  window.addEventListener("keydown", function(evt) {
-    // Press space key to fire
-    if (evt.keyCode === 32) {
-      console.log('hi!')
-    }
-  });
-    this.scene.onKeyboardObservable.add((kbInfo) => {
-      switch(kbInfo.type) {
-        case BABYLON.KeyboardEventTypes.KEYDOWN:
-          switch(kbInfo.event.key) {
-            case 'ArrowRight':
-              //this.camera.rotationOffset += 1
-              cubePlayer.addRotation(0,0.01,0)
-              //console.log(cubePlayer)
-              break
-            case 'ArrowLeft':
-              //this.camera.rotationOffset -= 1
-              cubePlayer.addRotation(0,-.01,0)
-              break
-            case 'ArrowUp':
-              // cubePlayer.position.z += .05
-              cubePlayer.translate(BABYLON.Axis.Z, .05, BABYLON.Space.LOCAL);
-              //cubeImposter.applyImpulse(new BABYLON.Vector3(0,0,10))
-              break
-            case 'ArrowDown':
-              cubePlayer.translate(BABYLON.Axis.Z, -.05, BABYLON.Space.LOCAL);
-              break
-          }
-        break
-      }
-    })
+  // window.addEventListener("keydown", function(evt) {
+  //   // Press space key to fire
+  //   if (evt.keyCode === 32) {
+  //     console.log('hi!')
+  //   }
+  // });
+
+  //   this.scene.onKeyboardObservable.add((kbInfo) => {
+  //     switch(kbInfo.type) {
+  //       case BABYLON.KeyboardEventTypes.KEYDOWN:
+  //         switch(kbInfo.event.key) {
+  //           case 'ArrowRight':
+  //             //this.camera.rotationOffset += 1
+  //             cubePlayer.addRotation(0,0.01,0)
+  //             //console.log(cubePlayer)
+  //             break
+  //           case 'ArrowLeft':
+  //             //this.camera.rotationOffset -= 1
+  //             cubePlayer.addRotation(0,-.01,0)
+  //             break
+  //           case 'ArrowUp':
+  //             // cubePlayer.position.z += .05
+  //             //This needs to be in a loop somewhere to gain speed properly
+  //             if(player.currSpeed <= player.maxSpeed) player.currSpeed += .01
+  //             cubePlayer.translate(BABYLON.Axis.Z, player.currSpeed, BABYLON.Space.LOCAL);
+  //             //cubeImposter.applyImpulse(new BABYLON.Vector3(0,0,10))
+  //             break
+  //           case 'ArrowDown':
+  //             if(player.currSpeed <= player.maxSpeed) player.currSpeed += .01
+  //             cubePlayer.translate(BABYLON.Axis.Z, -player.currSpeed, BABYLON.Space.LOCAL);
+  //             break
+  //         }
+  //       break
+  //     }
+  //   })
 
 
   }
