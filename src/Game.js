@@ -22,7 +22,7 @@ export default class Game {
     // Create a FreeCamera, and set its position to (x:0, y:5, z:-10).
     this.camera = new BABYLON.FollowCamera('followCam', new BABYLON.Vector3(0, 5,-10), this.scene);
     //camera distance from target
-    this.camera.radius = 10;
+    this.camera.radius = 20;
     //how high above the character the camera is
     this.camera.heightOffset = 6;
     this.camera.rotationOffset = 180;
@@ -38,7 +38,7 @@ export default class Game {
     let cubeImposter = player.createImposter(this.scene)
     this.camera.lockedTarget = cubePlayer;
 
-        //DEFINE VARIABLES IN THE SCENE
+    //DEFINE CANDY SITUATION IN THE SCENE
     let rootCandy = new Candy(this.scene)
     let candiesInScene = [];
     //GENERATE CANDIES ON STAGE
@@ -58,6 +58,20 @@ export default class Game {
 
 
     let groundImposter = ground.physicsImposter = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, {mass: 0, restitution: 0}, this.scene);
+
+
+    //CREATING THE MAIN OVERLAY
+
+    let candyCountUI = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI")
+    let candyCounter = new GUI.TextBlock();
+    candyCounter.height = "150px";
+    candyCounter.fontSize = 100;
+    candyCounter.text = player.totalCandy.toString();
+    candyCounter.color = 'white';
+    candyCounter.left = "500px"
+    candyCounter.top = "-250px"
+    //candyCounter.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+    candyCountUI.addControl(candyCounter)
 
       //For Testing UI, Create a UI Elem
     let spaceBarPlane = BABYLON.MeshBuilder.CreatePlane('spaceBarPlane', {width:2, height:1}, this.scene)
@@ -82,17 +96,6 @@ export default class Game {
 
     let playerActions = cubePlayer.actionManager = new BABYLON.ActionManager(this.scene)
 
-    // playerActions.registerAction(new BABYLON.SetValueAction(
-    //   {
-    //     trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger,
-    //     parameter: scene.getMeshByName('rootCandy')
-    //   },
-    //   rootCandy.value,
-    //     "scaling",
-    //     new BABYLON.Vector3(5, 5, 5)
-
-    // ))
-
     this.scene.actionManager = new BABYLON.ActionManager(this.scene)
 
     let up = this.scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
@@ -101,7 +104,7 @@ export default class Game {
     ));
     let down = this.scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
       {trigger: BABYLON.ActionManager.OnKeyDownTrigger, parameter: 40},
-      function () { cubePlayer.translate(BABYLON.Axis.Z, -.1, BABYLON.Space.LOCAL); }
+      function () { cubePlayer.translate(BABYLON.Axis.Z, -.1, BABYLON.Space.LOCAL);}
     ));
     let right = this.scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
       {trigger: BABYLON.ActionManager.OnKeyDownTrigger, parameter: 39},
@@ -116,14 +119,15 @@ export default class Game {
       if(candiesInScene.length > 0) {
         candiesInScene.forEach(candy => {
           cubeImposter.registerOnPhysicsCollide(candy['impCandy'], function(main, collided) {
-            console.log('hi')
+            // console.log('hi')
             let filteredInstances = rootCandy.value.instances.filter(element => {
               if(element.name === collided.object.id) return element
             })
             let myCandy = filteredInstances[0]
-            // player.collectCandy()
-            // collided.dispose()
-            // myCandy.dispose()
+            player.totalCandy += 1;
+            candyCounter.text = player.totalCandy.toString();
+            //DISPOSE MESH ISSUES, TEMPORARY SOLUTION vv
+            myCandy.position.y = -20;
 
           })
         })
@@ -147,11 +151,15 @@ export default class Game {
     });
     })
 
+  this.scene.onBeforeRenderObservable.add(() => {
+    let meshes = this.scene.meshes.slice(0)
 
-
-
-
-
+    for (let i = 0; i < meshes.length; i++) {
+      if(meshes[i].position.y < -1) {
+        meshes[i].dispose()
+      }
+    }
+  })
 
     //This may be inefficient! Instances are a better way to go.
 
