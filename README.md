@@ -1,4 +1,6 @@
 # BabylonJs Webpack Boilerplate
+https://ultimate-find-the-candy.herokuapp.com/
+https://git.heroku.com/ultimate-find-the-candy.git
 
 ## Description
 
@@ -17,7 +19,7 @@ This is a BabylonJS + Webpack minimal boilerplate for development and production
 ### /index.html
 This file is used as a template by webpack to create the actual **index.html** that will be served to the client.
 
-### /src 
+### /src
 This is where you should place all your application code.
 
 ### /src/index.js
