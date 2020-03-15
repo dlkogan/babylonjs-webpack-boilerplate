@@ -11,33 +11,11 @@ export class Player {
     this.maxSpeed = .1
   }
   createImposter(inScene) {
-    const playerImposter = this.self.physicsImpostor = new BABYLON.PhysicsImpostor(this.self, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 1, restitution: 0, nativeOptions:{move: true} }, inScene);
+    const playerImposter = this.self.physicsImpostor = new BABYLON.PhysicsImpostor(this.self, BABYLON.PhysicsImpostor.BoxImpostor, { mass:10, restitution: 0.1, nativeOptions:{move: true} }, inScene);
     return playerImposter;
   }
   collectCandy() {
     this.totalCandy += 1;
   }
 
-  // playerCollide() {
-  //   let collidedMesh = this.value.pick(this.value.x, this.value.y)
-  //   console.log()
-  // }
-
 }
-
-
-// export const createPlayer = (inScene) => {
-// const cubePlayer = BABYLON.MeshBuilder.CreateBox('cubePlayer',{height: 1, width: 1, depth:1}, inScene);
-// // Move the sphere upward 1/2 of its height.
-// let cubeMat = new BABYLON.StandardMaterial('cubePlayer', inScene)
-// cubeMat.diffuseColor = new BABYLON.Color3(1,0,0)
-// cubePlayer.material = cubeMat;
-// cubePlayer.position.y = 1;
-
-// return cubePlayer
-// }
-
-// export const playerImposter = (player, inScene) => {
-//   const playerImposter = player.physicsImpostor = new BABYLON.PhysicsImpostor(player, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 1, restitution: 0, nativeOptions:{move: true} }, inScene);
-//   return playerImposter;
-// }

@@ -40,7 +40,7 @@ export const treeGenerator = (numbTrees) => {
     newTree.value.position.y = 2;
     newTree.value.position.z = zCoor;
     newTree.value.position.x = xCoor;
-    let treeImposter = newTree.value.physicsImpostor = new BABYLON.PhysicsImpostor(newTree.value, BABYLON.PhysicsImpostor.BoxImpostor, {mass:0, restitution: 0})
+    let treeImposter = newTree.value.physicsImpostor = new BABYLON.PhysicsImpostor(newTree.value, BABYLON.PhysicsImpostor.BoxImpostor, {mass:.1, restitution: .001})
     if(treesWithCandy > 0) newTree.grantCandy()
     treesWithCandy--
     treeArray.push({['tree']: newTree, ['treeImposter']:treeImposter})

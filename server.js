@@ -5,6 +5,7 @@ const router = express.Router();
 const fs = require('fs');
 
 app.use(express.static(`${__dirname}/dist`));
+// app.use('/public/exportForBabylon', express.static(__dirname + '/dist'));
 
 app.use('/', router);
 

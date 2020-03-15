@@ -1,10 +1,12 @@
 import * as BABYLON from 'babylonjs';
 import 'babylonjs-loaders';
+import "@babylonjs/loaders/glTF";
 import * as GUI from 'babylonjs-gui';
 import {treeGenerator} from '../src/gamePieces/utility/generateTrees'
 import {myTimer, numbToTime} from '../src/gamePieces/utility/numberToTime'
 import {Player} from '../src/gamePieces/Mesh/player'
 import {Candy, generateCandy} from '../src/gamePieces/Mesh/candy'
+import {movement} from '../src/gamePieces/Movement/playerMovement'
 
 export default class Game {
   constructor( canvasId ){
@@ -32,11 +34,20 @@ export default class Game {
     this.light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(0,1,0), this.scene);
 
 
+    //I WANT TO IMPORT MY MODELS...I NEED TO HAVE THEM 'HOSTED' SOMEWHERE FIRST
+    //IE, I NEED TO MAKE AN API ROUTE...DEAL WITH THIS LATER LOL
+
+    // BABYLON.SceneLoader.ImportMesh("", "dist/", "candyBab.babylon", this.scene, function (newMeshes) {
+    //   let candy = newMeshes[0]
+    //   console.log(candy)
+    // });
+
 
     //DEFINE THE PLAYER AND ITS IMPOSTER
     let player = new Player(this.scene);
     let cubePlayer = player.self;
     let cubeImposter = player.createImposter(this.scene)
+    movement(cubePlayer)
     this.camera.lockedTarget = cubePlayer;
 
     //DEFINE CANDY SITUATION IN THE SCENE
@@ -46,6 +57,8 @@ export default class Game {
     let stageCandies = generateCandy(rootCandy, candiesInScene)
     candiesInScene = [...stageCandies]
     createCandyCollisions()
+
+
 
     // Create a built-in "ground" shape.
     let ground = BABYLON.MeshBuilder.CreateGround('ground',
@@ -112,22 +125,22 @@ export default class Game {
 
     this.scene.actionManager = new BABYLON.ActionManager(this.scene)
 
-    let up = this.scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
-        {trigger: BABYLON.ActionManager.OnKeyDownTrigger, parameter: 38},
-        function () { cubePlayer.translate(BABYLON.Axis.Z, .1, BABYLON.Space.LOCAL); }
-    ));
-    let down = this.scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
-      {trigger: BABYLON.ActionManager.OnKeyDownTrigger, parameter: 40},
-      function () { cubePlayer.translate(BABYLON.Axis.Z, -.1, BABYLON.Space.LOCAL);}
-    ));
-    let right = this.scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
-      {trigger: BABYLON.ActionManager.OnKeyDownTrigger, parameter: 39},
-      function () { cubePlayer.addRotation(0,0.01,0); }
-    ));
-    let left = this.scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
-      {trigger: BABYLON.ActionManager.OnKeyDownTrigger, parameter: 37},
-      function () { cubePlayer.addRotation(0,-0.01,0); }
-    ));
+    // let up = this.scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
+    //     {trigger: BABYLON.ActionManager.OnKeyDownTrigger, parameter: 38},
+    //     function () { cubePlayer.translate(BABYLON.Axis.Z, .1, BABYLON.Space.LOCAL); }
+    // ));
+    // let down = this.scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
+    //   {trigger: BABYLON.ActionManager.OnKeyDownTrigger, parameter: 40},
+    //   function () { cubePlayer.translate(BABYLON.Axis.Z, -.1, BABYLON.Space.LOCAL);}
+    // ));
+    // let right = this.scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
+    //   {trigger: BABYLON.ActionManager.OnKeyDownTrigger, parameter: 39},
+    //   function () { cubePlayer.addRotation(0,0.01,0); }
+    // ));
+    // let left = this.scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
+    //   {trigger: BABYLON.ActionManager.OnKeyDownTrigger, parameter: 37},
+    //   function () { cubePlayer.addRotation(0,-0.01,0); }
+    // ));
 
     function createCandyCollisions() {
       if(candiesInScene.length > 0) {

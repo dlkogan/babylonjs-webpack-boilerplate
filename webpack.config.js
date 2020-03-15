@@ -3,6 +3,7 @@ let HtmlWebpackPlugin = require('html-webpack-plugin');
 let LiveReloadPlugin = require('webpack-livereload-plugin');
 const path = require('path');
 
+
 module.exports =  {
   entry: './src/index.js',
   output: {
@@ -70,7 +71,7 @@ if (process.env.NODE_ENV === 'production') {
     }),
 
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-    
+
     new webpack.LoaderOptionsPlugin({
       minimize: true
     })
