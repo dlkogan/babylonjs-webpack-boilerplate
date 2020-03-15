@@ -10,15 +10,16 @@ class Tree {
   grantCandy() {
     this.hasCandy = true
   }
-  spawnCandy() {
+  spawnCandy(candyMesh, currCandies) {
     if (this.hasCandy) {
-      let newCandy = BABYLON.MeshBuilder.CreateSphere('newCandy', 4, this.scene)
+      let newCandy = candyMesh.value.createInstance("i" + currCandies.length)
       newCandy.position.y = 4;
+      let imposter = newCandy.physicsImpostor = new BABYLON.PhysicsImpostor(newCandy, BABYLON.PhysicsImpostor.SphereImpostor, {mass:1, restitution: 0})
       //FOR POSITION, MAKE SURE IT'S BEING PLACE RELATIVE TO TREE'S GLOBAL SCALE
       newCandy.position.z = this.value.position.z;
       newCandy.position.x = this.value.position.x + 2;
-      newCandy.physicsImpostor = new BABYLON.PhysicsImpostor(newCandy, BABYLON.PhysicsImpostor.SphereImpostor, {mass:5, restitution: 0})
       this.hasCandy = false;
+      return {candy: newCandy, impCandy: imposter}
     }
 
   }

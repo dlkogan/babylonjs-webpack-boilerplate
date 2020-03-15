@@ -3,7 +3,7 @@ import 'babylonjs-loaders';
 import * as GUI from 'babylonjs-gui';
 import {treeGenerator} from '../src/gamePieces/utility/generateTrees'
 import {Player} from '../src/gamePieces/Mesh/player'
-import { Sphere } from 'cannon';
+import {Candy, generateCandy} from '../src/gamePieces/Mesh/candy'
 
 export default class Game {
   constructor( canvasId ){
@@ -31,11 +31,20 @@ export default class Game {
     this.light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(0,1,0), this.scene);
 
 
+
     //DEFINE THE PLAYER AND ITS IMPOSTER
     let player = new Player(this.scene);
     let cubePlayer = player.self;
     let cubeImposter = player.createImposter(this.scene)
     this.camera.lockedTarget = cubePlayer;
+
+        //DEFINE VARIABLES IN THE SCENE
+    let rootCandy = new Candy(this.scene)
+    let candiesInScene = [];
+    //GENERATE CANDIES ON STAGE
+    let stageCandies = generateCandy(rootCandy, candiesInScene)
+    candiesInScene = [...stageCandies]
+    createCandyCollisions()
 
     // Create a built-in "ground" shape.
     let ground = BABYLON.MeshBuilder.CreateGround('ground',
@@ -47,14 +56,8 @@ export default class Game {
     //Apply the GroundMat Material to my Ground Mesh
     ground.material = groundMat;
 
-    //Code to generate Randomly Placed Trees
-
-
 
     let groundImposter = ground.physicsImposter = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, {mass: 0, restitution: 0}, this.scene);
-
-
-
 
       //For Testing UI, Create a UI Elem
     let spaceBarPlane = BABYLON.MeshBuilder.CreatePlane('spaceBarPlane', {width:2, height:1}, this.scene)
@@ -78,6 +81,18 @@ export default class Game {
     //PLAYER ACTIONS
 
     let playerActions = cubePlayer.actionManager = new BABYLON.ActionManager(this.scene)
+
+    // playerActions.registerAction(new BABYLON.SetValueAction(
+    //   {
+    //     trigger: BABYLON.ActionManager.OnIntersectionEnterTrigger,
+    //     parameter: scene.getMeshByName('rootCandy')
+    //   },
+    //   rootCandy.value,
+    //     "scaling",
+    //     new BABYLON.Vector3(5, 5, 5)
+
+    // ))
+
     this.scene.actionManager = new BABYLON.ActionManager(this.scene)
 
     let up = this.scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
@@ -97,15 +112,50 @@ export default class Game {
       function () { cubePlayer.addRotation(0,-0.01,0); }
     ));
 
+    function createCandyCollisions() {
+      if(candiesInScene.length > 0) {
+        candiesInScene.forEach(candy => {
+          cubeImposter.registerOnPhysicsCollide(candy['impCandy'], function(main, collided) {
+            console.log('hi')
+            let filteredInstances = rootCandy.value.instances.filter(element => {
+              if(element.name === collided.object.id) return element
+            })
+            let myCandy = filteredInstances[0]
+            // player.collectCandy()
+            // collided.dispose()
+            // myCandy.dispose()
+
+          })
+        })
+      } else {
+        console.log('no candy')
+      }
+
+    }
 
     let treeArr = treeGenerator(30)
     //FOR EACH TREE IMPOSTER...Create a collision Event :)
     treeArr.forEach(tree => {
       cubeImposter.registerOnPhysicsCollide(tree.treeImposter, function(main, collided) {
         button1.isVisible = true;
-        tree['tree'].spawnCandy()
+        if(tree['tree'].hasCandy) {
+          let newCandy = tree['tree'].spawnCandy(rootCandy, candiesInScene)
+          candiesInScene.push(newCandy)
+          createCandyCollisions()
+        }
+
     });
     })
+
+
+
+
+
+
+
+    //This may be inefficient! Instances are a better way to go.
+
+    // cubeImposter.registerOnPhysicsCollide()
 
 
     // cubeImposter.registerOnPhysicsCollide(sphere, function(main, collided) {

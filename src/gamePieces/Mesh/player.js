@@ -5,6 +5,7 @@ export class Player {
     this.playerMat.diffuseColor = new BABYLON.Color3(1,0,0)
     this.self.material = this.playerMat;
     this.isTouching = '';
+    this.totalCandy = 0;
     this.self.position.y = 1;
     this.currSpeed = 0;
     this.maxSpeed = .1
@@ -13,6 +14,14 @@ export class Player {
     const playerImposter = this.self.physicsImpostor = new BABYLON.PhysicsImpostor(this.self, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 1, restitution: 0, nativeOptions:{move: true} }, inScene);
     return playerImposter;
   }
+  collectCandy() {
+    this.totalCandy += 1;
+  }
+
+  // playerCollide() {
+  //   let collidedMesh = this.value.pick(this.value.x, this.value.y)
+  //   console.log()
+  // }
 
 }
 
