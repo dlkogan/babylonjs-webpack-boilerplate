@@ -1,7 +1,11 @@
-const numbToTime = (num) => {
-  let numMinutes = num/60;
-  let remainingSeconds = num%60
-  return numMinutes.toString() + ":" + remainingSeconds.toString()
+export const numbToTime = (num) => {
+  if(num < 60) return ":" + num.toString()
+  else {
+    let numMinutes = Math.floor(num/60);
+    let remainingSeconds = -(numMinutes - 60);
+    return numMinutes.toString() + ":" + remainingSeconds.toString()
+  }
+
 
 }
 

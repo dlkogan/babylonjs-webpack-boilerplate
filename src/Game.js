@@ -2,7 +2,7 @@ import * as BABYLON from 'babylonjs';
 import 'babylonjs-loaders';
 import * as GUI from 'babylonjs-gui';
 import {treeGenerator} from '../src/gamePieces/utility/generateTrees'
-import {myTimer} from '../src/gamePieces/utility/numberToTime'
+import {myTimer, numbToTime} from '../src/gamePieces/utility/numberToTime'
 import {Player} from '../src/gamePieces/Mesh/player'
 import {Candy, generateCandy} from '../src/gamePieces/Mesh/candy'
 
@@ -84,12 +84,7 @@ export default class Game {
     timer.top = '-250px'
     overlayUI.addControl(timer)
 
-  let timeCount = 59;
 
-  setInterval(function() {
-    timeCount = myTimer(timeCount)
-    timer.text = timeCount.toString();
-  }, 1000)
 
 
   //For Testing UI, Create a UI Elem
@@ -169,6 +164,14 @@ export default class Game {
 
     });
     })
+  //TIMER STUFF
+  let timeCount = 59;
+
+  setInterval(function() {
+    timeCount = myTimer(timeCount)
+    timer.text = numbToTime(timeCount);
+  }, 1000)
+
   this.scene.onBeforeRenderObservable.add(() => {
 
     let meshes = this.scene.meshes.slice(0)
