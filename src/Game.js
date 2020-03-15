@@ -2,6 +2,7 @@ import * as BABYLON from 'babylonjs';
 import 'babylonjs-loaders';
 import * as GUI from 'babylonjs-gui';
 import {treeGenerator} from '../src/gamePieces/utility/generateTrees'
+import {myTimer} from '../src/gamePieces/utility/numberToTime'
 import {Player} from '../src/gamePieces/Mesh/player'
 import {Candy, generateCandy} from '../src/gamePieces/Mesh/candy'
 
@@ -62,7 +63,9 @@ export default class Game {
 
     //CREATING THE MAIN OVERLAY
 
-    let candyCountUI = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI")
+    //CREATING UI FOR CANDY COUNTER
+
+    let overlayUI = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI")
     let candyCounter = new GUI.TextBlock();
     candyCounter.height = "150px";
     candyCounter.fontSize = 100;
@@ -71,9 +74,25 @@ export default class Game {
     candyCounter.left = "500px"
     candyCounter.top = "-250px"
     //candyCounter.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
-    candyCountUI.addControl(candyCounter)
+    overlayUI.addControl(candyCounter)
 
-      //For Testing UI, Create a UI Elem
+    //CREATING UI FOR TIMER
+    let timer = new GUI.TextBlock();
+    timer.height = "150px"
+    timer.fontSize = 100;
+    timer.color = 'white';
+    timer.top = '-250px'
+    overlayUI.addControl(timer)
+
+  let timeCount = 59;
+
+  setInterval(function() {
+    timeCount = myTimer(timeCount)
+    timer.text = timeCount.toString();
+  }, 1000)
+
+
+  //For Testing UI, Create a UI Elem
     let spaceBarPlane = BABYLON.MeshBuilder.CreatePlane('spaceBarPlane', {width:2, height:1}, this.scene)
     spaceBarPlane.parent = cubePlayer;
     spaceBarPlane.position.y = 1.5;
@@ -150,8 +169,8 @@ export default class Game {
 
     });
     })
-
   this.scene.onBeforeRenderObservable.add(() => {
+
     let meshes = this.scene.meshes.slice(0)
 
     for (let i = 0; i < meshes.length; i++) {
