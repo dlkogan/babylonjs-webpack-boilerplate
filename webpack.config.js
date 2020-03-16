@@ -46,6 +46,7 @@ module.exports =  {
   }
 };
 
+
 const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
 var CompressionWebpackPlugin = require('compression-webpack-plugin');
 
@@ -76,4 +77,7 @@ if (process.env.NODE_ENV === 'production') {
       minimize: true
     })
   ]);
+
 }
+
+

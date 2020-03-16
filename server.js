@@ -4,8 +4,11 @@ const port = process.env.PORT || 3000;
 const router = express.Router();
 const fs = require('fs');
 
+express.static.mime.define({'application/babylon': ['babylon'],'application/fx': ['fx'],'application/babylonmeshdata': ['babylonmeshdata']})
+
 app.use(express.static(`${__dirname}/dist`));
 // app.use('/public/exportForBabylon', express.static(__dirname + '/dist'));
+
 
 app.use('/', router);
 

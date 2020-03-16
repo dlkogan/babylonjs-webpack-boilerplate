@@ -37,10 +37,21 @@ export default class Game {
     //I WANT TO IMPORT MY MODELS...I NEED TO HAVE THEM 'HOSTED' SOMEWHERE FIRST
     //IE, I NEED TO MAKE AN API ROUTE...DEAL WITH THIS LATER LOL
 
-    // BABYLON.SceneLoader.ImportMesh("", "dist/", "candyBab.babylon", this.scene, function (newMeshes) {
+    // BABYLON.SceneLoader.ImportMesh("", "/src/scenes/", "candyBab.babylon", this.scene, function (newMeshes) {
     //   let candy = newMeshes[0]
     //   console.log(candy)
     // });
+
+    // let assetsManager = new BABYLON.AssetsManager(this.scene);
+    // let meshTask = assetsManager.addMeshTask("candyTask", "", "./src/scenes/", "candyBab.babylon")
+    // console.log(meshTask[0])
+    // meshTask.onSuccess = function (task) {
+    //   task.loadedMeshes[0].setPositionWithLocalVector(new BABYLON.Vector3(0, 8, 0)) // x == z , y == z, z == y from player's view
+    //   task.loadedMeshes[0].rotation = new BABYLON.Vector3(-Math.PI / 2, 0, 0) ;
+    //   task.loadedMeshes[0].scaling = new BABYLON.Vector3(1, 1, 1);
+    //  //But you can also do it on the assets manager itself (onTaskSuccess, onTaskError)
+    // // assetsManager.onTaskError = function (task) {	console.log("error while loading " + task.name)}assetsManager.load();
+    // }
 
 
     //DEFINE THE PLAYER AND ITS IMPOSTER
@@ -182,7 +193,8 @@ export default class Game {
 
   setInterval(function() {
     timeCount = myTimer(timeCount)
-    timer.text = numbToTime(timeCount);
+    if(timeCount > 0) timer.text = numbToTime(timeCount);
+    else timer.text = "Times up!"
   }, 1000)
 
   this.scene.onBeforeRenderObservable.add(() => {
