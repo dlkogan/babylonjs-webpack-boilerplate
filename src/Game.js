@@ -6,7 +6,7 @@ import {treeGenerator} from '../src/gamePieces/utility/generateTrees'
 import {myTimer, numbToTime} from '../src/gamePieces/utility/numberToTime'
 import {Player} from '../src/gamePieces/Mesh/player'
 import {Candy, generateCandy} from '../src/gamePieces/Mesh/candy'
-import {movement} from '../src/gamePieces/Movement/playerMovement'
+import {player1} from '../src/gamePieces/Movement/playerMovement'
 
 export default class Game {
   constructor( canvasId ){
@@ -37,7 +37,7 @@ export default class Game {
     let player = new Player(this.scene);
     let cubePlayer = player.self;
     let cubeImposter = player.createImposter(this.scene)
-    movement(cubePlayer, this.scene, this.camera)
+    player1(cubePlayer, this.scene, this.camera)
     // this.camera.lockedTarget = cubePlayer;
 
     //DEFINE CANDY SITUATION IN THE SCENE
@@ -59,6 +59,7 @@ export default class Game {
     groundMat.diffuseColor = new BABYLON.Color3(0,1,0)
     //Apply the GroundMat Material to my Ground Mesh
     ground.material = groundMat;
+    ground.checkCollisions = true;
 
 
     let groundImposter = ground.physicsImposter = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, {mass: 0, restitution: 0}, this.scene);
