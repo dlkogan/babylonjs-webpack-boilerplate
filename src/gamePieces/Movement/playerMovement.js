@@ -7,6 +7,9 @@ export const movement = (playerToMove, currScene, cam) => {
   playerToMove.parent = playerController;
   cam.parent = camController;
   playerController.parent = camController;
+
+
+  //PLAYER MOVEMENT SET UP
   currScene.actionManager = new BABYLON.ActionManager(currScene)
   let keyMap = {
   };
@@ -34,6 +37,39 @@ export const movement = (playerToMove, currScene, cam) => {
       camController.addRotation(0,0.01,0);
     }
   })
+
+  //PLAYER RAY SET UP
+  const playerRay = () => {
+    function vecToLocal(vector, mesh){
+      let m = mesh.getWorldMatrix();
+      let v = BABYLON.Vector3.TransformCoordinates(vector, m);
+      return v;
+    }
+    let origin = camController.position;
+
+    let forward = new BABYLON.Vector3(0,0,1);
+    forward = vecToLocal(forward, camController);
+
+    let direction = forward.subtract(origin);
+    direction = BABYLON.Vector3.Normalize(direction);
+
+    let length = 2;
+
+    let ray = new BABYLON.Ray(origin, direction, length);
+
+    let rayHelper = new BABYLON.RayHelper(ray);
+    rayHelper.show(currScene);
+
+    let hit = currScene.pickWithRay(ray);
+
+    if (hit.pickedMesh){
+     console.log(hit.pickedMesh.name);
+    }
+  }
+  currScene.registerBeforeRender(function() {
+    playerRay();
+  })
+
 
 }
 
