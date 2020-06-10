@@ -1,25 +1,31 @@
-export const movement = (playerToMove) => {
-  let keyMap = {}
+import { Scene } from "babylonjs";
 
-//38, 40 up down
-//39, 37 right left
+let speed = .3;
+export const movement = (playerToMove, currScene) => {
+  let playerController = new BABYLON.TransformNode("root");
+  playerToMove.parent = playerController;
+  currScene.actionManager = new BABYLON.ActionManager(currScene)
+  let keyMap = {
+  };
+  currScene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyDownTrigger, function (evt) {
+    keyMap[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
 
-//I DIDN'T INVENT THIS, THANKS STACK OVERFLOW
+  }));
+  currScene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyUpTrigger, function (evt) {
+    keyMap[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
+  }))
 
-  onkeydown = onkeyup = function(e){
-    e = e || event; // to deal with IE
-    keyMap[e.keyCode] = e.type == 'keydown';
-    /* insert conditional here */
-    let lastKeyDown = 0;
-    // if (keyMap[38] && keyMap[39]) playerToMove.translate(BABYLON.Axis.Z, .3, BABYLON.Space.LOCAL),playerToMove.addRotation(0,0.01,0)
-    // else if (keyMap[38] && keyMap[37]) playerToMove.translate(BABYLON.Axis.Z, .3, BABYLON.Space.LOCAL),playerToMove.addRotation(0,-0.01,0)
-    if(keyMap[38]) playerToMove.translate(BABYLON.Axis.Z, .3, BABYLON.Space.LOCAL)
-    if(keyMap[40]) playerToMove.translate(BABYLON.Axis.Z, -.3, BABYLON.Space.LOCAL)
-    if (keyMap[39]) playerToMove.addRotation(0,0.01,0)
-    if (keyMap[37]) playerToMove.addRotation(0,-0.01,0)
+  currScene.registerAfterRender(function() {
+    if(keyMap.ArrowUp) {
+      playerController.translate(BABYLON.Axis.Z, speed);
+    }
+    if(keyMap.ArrowLeft) {
+      playerController.addRotation(0,-0.01,0);
+    }
+    if(keyMap.ArrowRight) {
+      playerController.addRotation(0,0.01,0);
+    }
+  })
 
-
-    // console.log(lastKeyDown)
-    //PROBLEM, If I switch keys that's ANOTHER condition, what do?
-  }
 }
+
