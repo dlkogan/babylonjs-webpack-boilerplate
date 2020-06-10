@@ -21,14 +21,14 @@ export default class Game {
     // Create a basic BJS Scene object.
     this.scene = new BABYLON.Scene(this.engine);
     //physics
-    this.scene.enablePhysics(new BABYLON.Vector3(0,-9.81, 0), new BABYLON.CannonJSPlugin())
+    // this.scene.enablePhysics(new BABYLON.Vector3(0,-9.81, 0), new BABYLON.CannonJSPlugin())
     // Create a FreeCamera, and set its position to (x:0, y:5, z:-10).
-    this.camera = new BABYLON.FollowCamera('followCam', new BABYLON.Vector3(0, 5,-10), this.scene);
+    this.camera = new BABYLON.FollowCamera('followCam', new BABYLON.Vector3(0, 5, -15), this.scene);
     //camera distance from target
     this.camera.radius = 20;
     //how high above the character the camera is
     this.camera.heightOffset = 6;
-    this.camera.rotationOffset = 180;
+    this.camera.rotationOffset = 0;
     this.camera.attachControl(this.canvas, true)
     // Create a basic light, aiming 0,1,0 - meaning, to the sky.
     this.light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(0,1,0), this.scene);
@@ -37,8 +37,8 @@ export default class Game {
     let player = new Player(this.scene);
     let cubePlayer = player.self;
     let cubeImposter = player.createImposter(this.scene)
-    movement(cubePlayer, this.scene)
-    this.camera.lockedTarget = cubePlayer;
+    movement(cubePlayer, this.scene, this.camera)
+    // this.camera.lockedTarget = cubePlayer;
 
     //DEFINE CANDY SITUATION IN THE SCENE
     let rootCandy = new Candy(this.scene)
