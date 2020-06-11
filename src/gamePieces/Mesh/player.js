@@ -1,6 +1,6 @@
 export class Player {
   constructor(inScene) {
-    this.self = BABYLON.MeshBuilder.CreateBox('cubePlayer',{height: 1, width: 2, depth:1}, inScene);
+    this.self = BABYLON.MeshBuilder.CreateBox('cubePlayer',{height: 1, width: 1, depth:1}, inScene);
     this.littleSphere = BABYLON.MeshBuilder.CreateSphere('baby', {size: .2}, inScene);
     this.littleSphere.position.y = .5;
     this.littleSphere.position.z = 2;

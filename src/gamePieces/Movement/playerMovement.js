@@ -33,26 +33,39 @@ export const player1 = (playerToMove, currScene, cam) => {
     }))
     if(keyMap.ArrowUp && isColliding === "cubePlayer") {
       //when up arrow is pressed, player should face away from camera
+
+      camController.translate(BABYLON.Axis.Z, speed);
       isForward = true;
       playerController.lookAt(new BABYLON.Vector3(0, 0, -1))
-      camController.translate(BABYLON.Axis.Z, speed);
+
     }
-    if(keyMap.ArrowDown && isColliding === "cubePlayer") {
+    if(keyMap.ArrowDown) {
       //When down arrow is pressed, player should face toward camera
       // playerToMove.rotate(BABYLON.Axis.Y, 180)
       // console.log(playerController.forward);
+
+      camController.translate(BABYLON.Axis.Z, -speed)
       isForward = false;
       playerController.lookAt(new BABYLON.Vector3(0, 0, 1))
-      camController.translate(BABYLON.Axis.Z, -speed)
+
 
     }
     if(keyMap.ArrowLeft) {
       // cam.rotationOffset += 1;
-      camController.addRotation(0,-0.01,0);
+      if(isForward) {
+        camController.addRotation(0,-0.02,0);
+      } else {
+        camController.addRotation(0,0.02,0);
+      }
+
     }
     if(keyMap.ArrowRight) {
       // cam.rotationOffset -=1;
-      camController.addRotation(0,0.01,0);
+      if(!isForward) {
+        camController.addRotation(0,-0.02,0);
+      } else {
+        camController.addRotation(0,0.02,0);
+      }
     }
   }
 
@@ -67,12 +80,15 @@ export const player1 = (playerToMove, currScene, cam) => {
     let origin = camController.position;
 
     let forward = new BABYLON.Vector3(0,0,1);
+    if(!isForward) {
+      forward = new BABYLON.Vector3(0,0,-1);
+    }
     forward = vecToLocal(forward, camController);
 
     let direction = forward.subtract(origin);
     direction = BABYLON.Vector3.Normalize(direction);
 
-    let length = 2;
+    let length = 3;
 
     let ray = new BABYLON.Ray(origin, direction, length);
 
@@ -91,6 +107,7 @@ export const player1 = (playerToMove, currScene, cam) => {
         },
         (evt) => {
             isColliding = hit.pickedMesh.name;
+            console.log(isColliding);
         }
       ));
       playerCollider.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
@@ -103,6 +120,7 @@ export const player1 = (playerToMove, currScene, cam) => {
         (evt) => {
 
           isColliding = "cubePlayer"
+          console.log(isColliding);
         }
       ))
 
