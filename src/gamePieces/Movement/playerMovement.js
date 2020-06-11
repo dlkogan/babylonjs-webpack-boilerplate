@@ -120,6 +120,7 @@ export const player1 = (playerToMove, currScene, cam) => {
         (evt) => {
 
           isColliding = "cubePlayer"
+          // isForward = !isForward;
           console.log(isColliding);
         }
       ))
