@@ -11,7 +11,7 @@ export const player1 = (playerToMove, currScene, cam) => {
   };
   let isForward = true;
   //SETS UP THE PLAYER COLLIDER SO WE CAN USE ACTION MANAGER AND RAYCAST EVENTS WILL ONLY HAPPEN ONCE
-  let playerCollider = new BABYLON.MeshBuilder.CreateBox("playerCollider", {size:1}, currScene)
+  let playerCollider = new BABYLON.MeshBuilder.CreateBox("playerCollider", {size:.2}, currScene)
   playerCollider.position.y = .5;
   playerCollider.visibility = 0;
   currScene.actionManager = new BABYLON.ActionManager(currScene)
@@ -31,23 +31,29 @@ export const player1 = (playerToMove, currScene, cam) => {
     currScene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyUpTrigger, function (evt) {
       keyMap[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
     }))
-    if(keyMap.ArrowUp && isColliding === "cubePlayer") {
+    if(keyMap.ArrowUp) {
       //when up arrow is pressed, player should face away from camera
+      if(isColliding === "cubePlayer" || !isForward) {
+        camController.translate(BABYLON.Axis.Z, speed);
+        isForward = true;
+        playerController.lookAt(new BABYLON.Vector3(0, 0, -1))
+        isColliding === "cubePlayer"
+      }
 
-      camController.translate(BABYLON.Axis.Z, speed);
-      isForward = true;
-      playerController.lookAt(new BABYLON.Vector3(0, 0, -1))
 
     }
     if(keyMap.ArrowDown) {
-      //When down arrow is pressed, player should face toward camera
-      // playerToMove.rotate(BABYLON.Axis.Y, 180)
-      // console.log(playerController.forward);
-
+      /*
+      WHAT: When the player hits a tree while facing backward, they can only go forward
+      OTHERWISE, they can go in either direction
+      If isColliding equals cubePlayer, the player is no longer colliding
+      */
+     if(isColliding === "cubePlayer" || isForward) {
       camController.translate(BABYLON.Axis.Z, -speed)
-      isForward = false;
       playerController.lookAt(new BABYLON.Vector3(0, 0, 1))
-
+      isForward = false;
+      isColliding === "cubePlayer"
+     }
 
     }
     if(keyMap.ArrowLeft) {
@@ -108,6 +114,16 @@ export const player1 = (playerToMove, currScene, cam) => {
         (evt) => {
             isColliding = hit.pickedMesh.name;
             console.log(isColliding);
+            if(isColliding !== "cubePlayer") {
+              if(isForward) {
+                camController.translate(BABYLON.Axis.Z, -.15)
+              }
+              else {
+                camController.translate(BABYLON.Axis.Z, .15)
+              }
+
+            }
+
         }
       ));
       playerCollider.actionManager.registerAction(new BABYLON.ExecuteCodeAction(
@@ -118,10 +134,7 @@ export const player1 = (playerToMove, currScene, cam) => {
           }
         },
         (evt) => {
-
           isColliding = "cubePlayer"
-          // isForward = !isForward;
-          console.log(isColliding);
         }
       ))
 

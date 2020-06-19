@@ -48,8 +48,6 @@ export default class Game {
     candiesInScene = [...stageCandies]
     createCandyCollisions()
 
-
-
     // Create a built-in "ground" shape.
     let ground = BABYLON.MeshBuilder.CreateGround('ground',
                                 {width: 60, height: 60, subdivisions: 2}, this.scene);
@@ -59,7 +57,7 @@ export default class Game {
     groundMat.diffuseColor = new BABYLON.Color3(0,1,0)
     //Apply the GroundMat Material to my Ground Mesh
     ground.material = groundMat;
-    ground.checkCollisions = true;
+    // ground.checkCollisions = true;
 
 
     let groundImposter = ground.physicsImposter = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, {mass: 0, restitution: 0}, this.scene);
@@ -134,19 +132,8 @@ export default class Game {
 
     }
 
-    let treeArr = treeGenerator(30)
-    //FOR EACH TREE IMPOSTER...Create a collision Event :)
-    treeArr.forEach(tree => {
-      cubeImposter.registerOnPhysicsCollide(tree.treeImposter, function(main, collided) {
-        button1.isVisible = true;
-        if(tree['tree'].hasCandy) {
-          let newCandy = tree['tree'].spawnCandy(rootCandy, candiesInScene)
-          candiesInScene.push(newCandy)
-          createCandyCollisions()
-        }
+  treeGenerator(30, this.scene)
 
-    });
-    })
   //TIMER STUFF
   let timeCount = 59;
 

@@ -14,12 +14,13 @@ app.use('/', router);
 
 router.get('*', (req, res, next) => {
   // uncomment the line below to see the file requests on the console
-
+  console.log(_dirname);
   if (fs.existsSync(`${__dirname}` + req.url+ '.gz')){
     res.set('Content-Encoding', 'gzip');
     res.set('Content-Type', 'application/javascript');
     req.url = req.url + '.gz';
   }
+
   res.sendFile(`${__dirname}` + req.url);
 });
 
