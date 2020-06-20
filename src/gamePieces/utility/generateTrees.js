@@ -3,9 +3,12 @@
 //Each TREE Instance will have X, Z Coord, and if it contains Candy (T || F)
 // const treeMesh = require('../../scenes')
 
-export const treeGenerator = (numTrees, currScene) => {
-  BABYLON.SceneLoader.ImportMesh("", "https://raw.githubusercontent.com/dlkogan/fileHostTest/master/", "treeBab.babylon", currScene, function(newMeshes) {
-  let newTree = newMeshes[0];
+export const treeGenerator = (numTrees, currScene, treeLoadTask) => {
+  let treesWithCandy = Math.floor(numTrees/3)
+  treeLoadTask.onSuccess = function(newMeshes) {
+  let newTree = newMeshes.loadedMeshes[0];
+
+
   newTree.isVisible = false;
   newTree.scaling = new BABYLON.Vector3(150,150,150);
   for(let i = 0; i < numTrees; i++) {
@@ -18,9 +21,15 @@ export const treeGenerator = (numTrees, currScene) => {
     newInstance.position.z = zCoor;
     treeCollider.position.x = xCoor;
     treeCollider.position.z = zCoor;
+    if(treesWithCandy > 0) {
+      treeCollider.hasCandy = true;
+    }
+    else {
+      treeCollider.hasCandy = false;
+    }
 
   }
-});
+}
 }
 
 

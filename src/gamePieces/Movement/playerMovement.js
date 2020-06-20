@@ -1,3 +1,5 @@
+import {generateCandy} from '../Mesh/candy'
+import { AssetsManager } from 'babylonjs';
 
 export const player1 = (playerToMove, currScene, cam) => {
   currScene.collisionsEnabled = true;
@@ -73,6 +75,11 @@ export const player1 = (playerToMove, currScene, cam) => {
         camController.addRotation(0,0.02,0);
       }
     }
+    if(keyMap[" "]) {
+      if(isColliding === "tree") {
+        generateCandy();
+      }
+    }
   }
 
   //PLAYER RAY SET UP
@@ -113,7 +120,6 @@ export const player1 = (playerToMove, currScene, cam) => {
         },
         (evt) => {
             isColliding = hit.pickedMesh.name;
-            console.log(isColliding);
             if(isColliding !== "cubePlayer") {
               if(isForward) {
                 camController.translate(BABYLON.Axis.Z, -.15)

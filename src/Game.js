@@ -32,21 +32,21 @@ export default class Game {
     this.camera.attachControl(this.canvas, true)
     // Create a basic light, aiming 0,1,0 - meaning, to the sky.
     this.light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(0,1,0), this.scene);
+    let assetsManager = new BABYLON.AssetsManager(this.scene);
+    let treeMesh = assetsManager.addMeshTask("tree task", "", "https://raw.githubusercontent.com/dlkogan/fileHostTest/master/", "treeBab.babylon")
+    // let candyMesh = assetsManager.addMeshTask("candy task", "", "https://raw.githubusercontent.com/dlkogan/fileHostTest/master/", "candyBab.babylon")
+    // let rootCandy = {};
 
     //DEFINE THE PLAYER AND ITS IMPOSTER
     let player = new Player(this.scene);
     let cubePlayer = player.self;
-    let cubeImposter = player.createImposter(this.scene)
+    // candyMesh.onSuccess = function(task) {
+    //   rootCandy = task.loadedMeshes[0];
+    // }
     player1(cubePlayer, this.scene, this.camera)
     // this.camera.lockedTarget = cubePlayer;
 
-    //DEFINE CANDY SITUATION IN THE SCENE
-    let rootCandy = new Candy(this.scene)
-    let candiesInScene = [];
-    //GENERATE CANDIES ON STAGE
-    let stageCandies = generateCandy(rootCandy, candiesInScene)
-    candiesInScene = [...stageCandies]
-    createCandyCollisions()
+
 
     // Create a built-in "ground" shape.
     let ground = BABYLON.MeshBuilder.CreateGround('ground',
@@ -109,30 +109,7 @@ export default class Game {
     pressSpaceUI.addControl(button1);
 
 
-
-    function createCandyCollisions() {
-      if(candiesInScene.length > 0) {
-        candiesInScene.forEach(candy => {
-          cubeImposter.registerOnPhysicsCollide(candy['impCandy'], function(main, collided) {
-            // console.log('hi')
-            let filteredInstances = rootCandy.value.instances.filter(element => {
-              if(element.name === collided.object.id) return element
-            })
-            let myCandy = filteredInstances[0]
-            player.totalCandy += 1;
-            candyCounter.text = player.totalCandy.toString();
-            //DISPOSE MESH ISSUES, TEMPORARY SOLUTION vv
-            myCandy.position.y = -20;
-
-          })
-        })
-      } else {
-        console.log('no candy')
-      }
-
-    }
-
-  treeGenerator(30, this.scene)
+  treeGenerator(15, this.scene, treeMesh)
 
   //TIMER STUFF
   let timeCount = 59;
@@ -153,6 +130,14 @@ export default class Game {
       }
     }
   })
+
+//Render Loop runs when assets are loaded
+assetsManager.onFinish = function (tasks) {
+    engine.runRenderLoop(function () {
+       scene.render();
+    });
+ };
+ assetsManager.load();
 
     //This may be inefficient! Instances are a better way to go.
 
