@@ -4,9 +4,7 @@ import "@babylonjs/loaders/glTF";
 import * as GUI from 'babylonjs-gui';
 import {treeGenerator} from '../src/gamePieces/utility/generateTrees'
 import {myTimer, numbToTime} from '../src/gamePieces/utility/numberToTime'
-import {Player} from '../src/gamePieces/Mesh/player'
-import {Candy, generateCandy} from '../src/gamePieces/Mesh/candy'
-import {player1} from '../src/gamePieces/Movement/playerMovement'
+import {player} from './gamePieces/Mesh/player'
 
 export default class Game {
   constructor( canvasId ){
@@ -15,6 +13,7 @@ export default class Game {
     this.scene = {};
     this.camera = {};
     this.light = {};
+    this.assetsManager = {};
   }
 
   createScene() {
@@ -32,21 +31,12 @@ export default class Game {
     this.camera.attachControl(this.canvas, true)
     // Create a basic light, aiming 0,1,0 - meaning, to the sky.
     this.light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(0,1,0), this.scene);
-    let assetsManager = new BABYLON.AssetsManager(this.scene);
-    let treeMesh = assetsManager.addMeshTask("tree task", "", "https://raw.githubusercontent.com/dlkogan/fileHostTest/master/", "treeBab.babylon")
+    this.assetsManager = new BABYLON.AssetsManager(this.scene);
+    let treeMesh = this.assetsManager.addMeshTask("tree task", "", "https://raw.githubusercontent.com/dlkogan/fileHostTest/master/", "treeBab.babylon")
+    //IDEA: Maybe can load in the rootMesh for Candy Task here there reference it in generate candy?
     // let candyMesh = assetsManager.addMeshTask("candy task", "", "https://raw.githubusercontent.com/dlkogan/fileHostTest/master/", "candyBab.babylon")
     // let rootCandy = {};
-
-    //DEFINE THE PLAYER AND ITS IMPOSTER
-    let player = new Player(this.scene);
-    let cubePlayer = player.self;
-    // candyMesh.onSuccess = function(task) {
-    //   rootCandy = task.loadedMeshes[0];
-    // }
-    player1(cubePlayer, this.scene, this.camera)
-    // this.camera.lockedTarget = cubePlayer;
-
-
+    player(this.scene, this.camera)
 
     // Create a built-in "ground" shape.
     let ground = BABYLON.MeshBuilder.CreateGround('ground',
@@ -54,13 +44,10 @@ export default class Game {
     //Create material for Ground
     let groundMat = new BABYLON.StandardMaterial('groundMat', this.scene)
     //Set the Diffuse Color of the Ground
-    groundMat.diffuseColor = new BABYLON.Color3(0,1,0)
+    groundMat.diffuseColor = new BABYLON.Color3(.3,1,.1)
     //Apply the GroundMat Material to my Ground Mesh
     ground.material = groundMat;
     // ground.checkCollisions = true;
-
-
-    let groundImposter = ground.physicsImposter = new BABYLON.PhysicsImpostor(ground, BABYLON.PhysicsImpostor.BoxImpostor, {mass: 0, restitution: 0}, this.scene);
 
 
     //CREATING THE MAIN OVERLAY
@@ -68,15 +55,15 @@ export default class Game {
     //CREATING UI FOR CANDY COUNTER
 
     let overlayUI = GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI")
-    let candyCounter = new GUI.TextBlock();
-    candyCounter.height = "150px";
-    candyCounter.fontSize = 100;
-    candyCounter.text = player.totalCandy.toString();
-    candyCounter.color = 'white';
-    candyCounter.left = "500px"
-    candyCounter.top = "-250px"
-    //candyCounter.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
-    overlayUI.addControl(candyCounter)
+    // let candyCounter = new GUI.TextBlock();
+    // candyCounter.height = "150px";
+    // candyCounter.fontSize = 100;
+    // candyCounter.text = 0;
+    // candyCounter.color = 'white';
+    // candyCounter.left = "500px"
+    // candyCounter.top = "-250px"
+    // //candyCounter.textHorizontalAlignment = GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+    // overlayUI.addControl(candyCounter)
 
     //CREATING UI FOR TIMER
     let timer = new GUI.TextBlock();
@@ -90,28 +77,28 @@ export default class Game {
 
 
   //For Testing UI, Create a UI Elem
-    let spaceBarPlane = BABYLON.MeshBuilder.CreatePlane('spaceBarPlane', {width:2, height:1}, this.scene)
-    spaceBarPlane.parent = cubePlayer;
-    spaceBarPlane.position.y = 1.5;
+    // let spaceBarPlane = BABYLON.MeshBuilder.CreatePlane('spaceBarPlane', {width:2, height:1}, this.scene)
+    // spaceBarPlane.parent = cubePlayer;
+    // spaceBarPlane.position.y = 1.5;
 
-    let pressSpaceUI = GUI.AdvancedDynamicTexture.CreateForMesh(spaceBarPlane)
-    let button1 = GUI.Button.CreateSimpleButton("but1", "Space!");
-    button1.width = 1;
-    button1.height = 0.4;
-    button1.color = "black";
-    button1.fontSize = 200;
-    button1.isVisible = false;
-    button1.background = "white";
+    // let pressSpaceUI = GUI.AdvancedDynamicTexture.CreateForMesh(spaceBarPlane)
+    // let button1 = GUI.Button.CreateSimpleButton("but1", "Space!");
+    // button1.width = 1;
+    // button1.height = 0.4;
+    // button1.color = "black";
+    // button1.fontSize = 200;
+    // button1.isVisible = false;
+    // button1.background = "white";
 
     // button1.onPointerUpObservable.add(function() {
     //     alert("you did it!");
     // });
-    pressSpaceUI.addControl(button1);
+    // pressSpaceUI.addControl(button1);
 
 
   treeGenerator(15, this.scene, treeMesh)
 
-  //TIMER STUFF
+  // TIMER STUFF
   let timeCount = 59;
 
   setInterval(function() {
@@ -132,65 +119,12 @@ export default class Game {
   })
 
 //Render Loop runs when assets are loaded
-assetsManager.onFinish = function (tasks) {
-    engine.runRenderLoop(function () {
-       scene.render();
+this.assetsManager.onFinish = function (tasks) {
+    this.engine.runRenderLoop(function () {
+       this.scene.render();
     });
  };
- assetsManager.load();
-
-    //This may be inefficient! Instances are a better way to go.
-
-    // cubeImposter.registerOnPhysicsCollide()
-
-
-    // cubeImposter.registerOnPhysicsCollide(sphere, function(main, collided) {
-    //   collided.dispose()
-    // });
-
-
-
-
-
-    //Extremely Basic Keyboard Controller THIS IS FIRST AND NOW CULLED VER OF KEYBOARD
-
-  //eventListener for Keyboard Press. NOTE, this will make tree Interaction/CandyHappen
-  // window.addEventListener("keydown", function(evt) {
-  //   // Press space key to fire
-  //   if (evt.keyCode === 32) {
-  //     console.log('hi!')
-  //   }
-  // });
-
-  //   this.scene.onKeyboardObservable.add((kbInfo) => {
-  //     switch(kbInfo.type) {
-  //       case BABYLON.KeyboardEventTypes.KEYDOWN:
-  //         switch(kbInfo.event.key) {
-  //           case 'ArrowRight':
-  //             //this.camera.rotationOffset += 1
-  //             cubePlayer.addRotation(0,0.01,0)
-  //             //console.log(cubePlayer)
-  //             break
-  //           case 'ArrowLeft':
-  //             //this.camera.rotationOffset -= 1
-  //             cubePlayer.addRotation(0,-.01,0)
-  //             break
-  //           case 'ArrowUp':
-  //             // cubePlayer.position.z += .05
-  //             //This needs to be in a loop somewhere to gain speed properly
-  //             if(player.currSpeed <= player.maxSpeed) player.currSpeed += .01
-  //             cubePlayer.translate(BABYLON.Axis.Z, player.currSpeed, BABYLON.Space.LOCAL);
-  //             //cubeImposter.applyImpulse(new BABYLON.Vector3(0,0,10))
-  //             break
-  //           case 'ArrowDown':
-  //             if(player.currSpeed <= player.maxSpeed) player.currSpeed += .01
-  //             cubePlayer.translate(BABYLON.Axis.Z, -player.currSpeed, BABYLON.Space.LOCAL);
-  //             break
-  //         }
-  //       break
-  //     }
-  //   })
-
+ this.assetsManager.load();
 
   }
 
