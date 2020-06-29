@@ -3,7 +3,23 @@
 //Each TREE Instance will have X, Z Coord, and if it contains Candy (T || F)
 // const treeMesh = require('../../scenes')
 
-export const treeGenerator = (numTrees, currScene, treeLoadTask) => {
+export const treeGenerator = (numTrees, currScene, treeLoadTask, gridSize = 61) => {
+  let gridArray = new Array(gridSize).fill([]).map(element => new Array(gridSize).fill(null));
+
+  //THE GRID WILL ALWAYS BE AN ODD NUMBER
+  gridArray[(gridArray.length - 1)/2][(gridArray.length - 1)/2] = true;
+
+  const isPositionValid = (x, z) => {
+    for(let i = x - 3; i <= x + 3; i++) {
+      for(let j = z - 3; j <= z + 3; j++) {
+        if(gridArray[i][j]) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
   let treesWithCandy = Math.floor(numTrees/3)
   treeLoadTask.onSuccess = function(newMeshes) {
   let newTree = newMeshes.loadedMeshes[0];
@@ -12,22 +28,30 @@ export const treeGenerator = (numTrees, currScene, treeLoadTask) => {
   newTree.isVisible = false;
   newTree.scaling = new BABYLON.Vector3(150,150,150);
   for(let i = 0; i < numTrees; i++) {
-    let xCoor = Math.floor(Math.random() * 60 -30)
-    let zCoor = Math.floor(Math.random() * 60 -30)
-    let newInstance = newTree.createInstance("treeInstance" + i);
-    let treeCollider = BABYLON.MeshBuilder.CreateBox('tree', {height:4, width:2, depth:2}, currScene);
-    treeCollider.visibility = 0;
-    newInstance.position.x = xCoor;
-    newInstance.position.z = zCoor;
-    treeCollider.position.x = xCoor;
-    treeCollider.position.z = zCoor;
-    if(treesWithCandy > 0) {
-      treeCollider.hasCandy = true;
+    console.log(numTrees, i);
+    let xCoor = Math.floor(Math.random() * 61 -30)
+    let zCoor = Math.floor(Math.random() * 61 -30)
+    if(!isPositionValid(xCoor + 30, zCoor + 30)) {
+      numTrees++;
+
     }
     else {
-      treeCollider.hasCandy = false;
-    }
+      gridArray[xCoor + 30][zCoor + 30] = true;
 
+      let newInstance = newTree.createInstance("treeInstance" + i);
+      let treeCollider = BABYLON.MeshBuilder.CreateBox('tree', {height:4, width:2, depth:2}, currScene);
+      treeCollider.visibility = 0;
+      newInstance.position.x = xCoor;
+      newInstance.position.z = zCoor;
+      treeCollider.position.x = xCoor;
+      treeCollider.position.z = zCoor;
+      if(treesWithCandy > 0) {
+        treeCollider.hasCandy = true;
+      }
+      else {
+        treeCollider.hasCandy = false;
+      }
+    }
   }
 }
 }

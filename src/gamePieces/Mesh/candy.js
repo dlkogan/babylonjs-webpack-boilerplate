@@ -1,5 +1,5 @@
 //Note, you can add properties and methods to Babylon Meshes
-export const generateCandy = (currScene, dropper) => {
+export const generateCandy = (currScene, dropper, theCandy) => {
   let candyProxy = BABYLON.MeshBuilder.CreateSphere("candy", 4)
   candyProxy.visibility = 0;
   candyProxy.position = new BABYLON.Vector3(dropper.position.x + 2, dropper.position.y, dropper.position.z);

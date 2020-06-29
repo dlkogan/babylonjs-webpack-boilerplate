@@ -1,7 +1,8 @@
 import {generateCandy} from './candy'
-import { AssetsManager } from 'babylonjs';
+// import { AssetsManager } from 'babylonjs';
 
 export const player = (currScene, cam) => {
+  console.log('player Log');
   let playerToMove = BABYLON.MeshBuilder.CreateBox('cubePlayer',{height: 1, width: 1, depth:1}, currScene);
   let playerMat = new BABYLON.StandardMaterial('playerMat', currScene)
   playerMat.diffuseColor = new BABYLON.Color3(1,0,0)

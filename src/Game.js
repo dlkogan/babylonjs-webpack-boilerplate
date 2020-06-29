@@ -34,9 +34,11 @@ export default class Game {
     this.assetsManager = new BABYLON.AssetsManager(this.scene);
     let treeMesh = this.assetsManager.addMeshTask("tree task", "", "https://raw.githubusercontent.com/dlkogan/fileHostTest/master/", "treeBab.babylon")
     //IDEA: Maybe can load in the rootMesh for Candy Task here there reference it in generate candy?
-    // let candyMesh = assetsManager.addMeshTask("candy task", "", "https://raw.githubusercontent.com/dlkogan/fileHostTest/master/", "candyBab.babylon")
+    // let candyMesh = this.assetsManager.addMeshTask("candy task", "", "https://raw.githubusercontent.com/dlkogan/fileHostTest/master/", "candyBab.babylon")
     // let rootCandy = {};
     player(this.scene, this.camera)
+
+
 
     // Create a built-in "ground" shape.
     let ground = BABYLON.MeshBuilder.CreateGround('ground',
@@ -120,11 +122,14 @@ export default class Game {
 
 //Render Loop runs when assets are loaded
 this.assetsManager.onFinish = function (tasks) {
+
     this.engine.runRenderLoop(function () {
+
        this.scene.render();
     });
  };
  this.assetsManager.load();
+
 
   }
 
